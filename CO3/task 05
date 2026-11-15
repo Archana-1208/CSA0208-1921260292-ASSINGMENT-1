@@ -1,0 +1,112 @@
+#include <stdio.h>
+#include <ctype.h>
+
+/* Count Words */
+int word_count(const char s[])
+{
+    int count = 0;
+    int inside = 0;
+
+    for (int i = 0; s[i] != '\0'; i++)
+    {
+        if (!isspace((unsigned char)s[i]))
+        {
+            if (inside == 0)
+            {
+                count++;
+                inside = 1;
+            }
+        }
+        else
+        {
+            inside = 0;
+        }
+    }
+
+    return count;
+}
+
+/* Convert to Uppercase */
+void uppercase(char s[])
+{
+    for (int i = 0; s[i] != '\0'; i++)
+        s[i] = toupper((unsigned char)s[i]);
+}
+
+/* Reverse String */
+void reverse(char s[])
+{
+    int i = 0, j = 0;
+    char temp;
+
+    while (s[j] != '\0')
+        j++;
+
+    j--;
+
+    while (i < j)
+    {
+        temp = s[i];
+        s[i] = s[j];
+        s[j] = temp;
+
+        i++;
+        j--;
+    }
+}
+
+/* Check Palindrome */
+int is_palindrome(const char s[])
+{
+    int left = 0, right = 0;
+
+    while (s[right] != '\0')
+        right++;
+
+    right--;
+
+    while (left < right)
+    {
+        while (left < right &&
+               !isalpha((unsigned char)s[left]))
+            left++;
+
+        while (left < right &&
+               !isalpha((unsigned char)s[right]))
+            right--;
+
+        if (tolower((unsigned char)s[left]) !=
+            tolower((unsigned char)s[right]))
+            return 0;
+
+        left++;
+        right--;
+    }
+
+    return 1;
+}
+
+int main()
+{
+    char message[] = "Meet at the library at 5 PM";
+    char text[] = "hello";
+
+    printf("Words: %d\n", word_count(message));
+
+    uppercase(text);
+    printf("Uppercase: %s\n", text);
+
+    reverse(text);
+    printf("Reverse: %s\n", text);
+
+    printf("Palindrome 1: %d\n",
+           is_palindrome("Madam, I'm Adam"));
+
+    printf("Palindrome 2: %d\n",
+           is_palindrome("Hello"));
+
+    printf("Tab Test: %d\n",
+           word_count("Hello\tWorld"));
+
+    return 0;
+}

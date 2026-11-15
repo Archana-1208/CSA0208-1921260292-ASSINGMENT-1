@@ -1,0 +1,157 @@
+#include <stdio.h>
+#include <string.h>
+
+#define MAX 500
+#define LEN 30
+
+int comparisons = 0;
+
+/* Read Names */
+void read_names(char names[MAX][LEN], int n)
+{
+    printf("Enter %d names:\n", n);
+
+    for (int i = 0; i < n; i++)
+    {
+        fgets(names[i], LEN, stdin);
+
+        int j = 0;
+
+        while (names[i][j] != '\0')
+        {
+            if (names[i][j] == '\n')
+            {
+                names[i][j] = '\0';
+                break;
+            }
+
+            j++;
+        }
+    }
+}
+
+/* Sort Names */
+void sort_names(char names[MAX][LEN], int n)
+{
+    char temp[LEN];
+
+    comparisons = 0;
+
+    for (int i = 0; i < n - 1; i++)
+    {
+        for (int j = 0; j < n - i - 1; j++)
+        {
+            comparisons++;
+
+            if (strcmp(names[j], names[j + 1]) > 0)
+            {
+                strcpy(temp, names[j]);
+                strcpy(names[j], names[j + 1]);
+                strcpy(names[j + 1], temp);
+            }
+        }
+    }
+}
+
+/* Binary Search */
+int binary_search(char names[MAX][LEN], int n, char key[])
+{
+    int low = 0, high = n - 1;
+
+    comparisons = 0;
+
+    while (low <= high)
+    {
+        int mid = low + (high - low) / 2;
+
+        comparisons++;
+
+        int result = strcmp(names[mid], key);
+
+        if (result == 0)
+            return mid;
+
+        else if (result < 0)
+            low = mid + 1;
+
+        else
+            high = mid - 1;
+    }
+
+    return -1;
+}
+
+/* Find Duplicates */
+void find_duplicates(char names[MAX][LEN], int n)
+{
+    printf("\nDuplicate Names:\n");
+
+    int found = 0;
+
+    for (int i = 0; i < n - 1; i++)
+    {
+        if (strcmp(names[i], names[i + 1]) == 0)
+        {
+            printf("%s\n", names[i]);
+            found = 1;
+        }
+    }
+
+    if (!found)
+        printf("No duplicates found\n");
+}
+
+int main()
+{
+    char names[MAX][LEN];
+    int n;
+    char key[LEN];
+
+    printf("Enter number of residents: ");
+    scanf("%d", &n);
+    getchar();
+
+    if (n < 1 || n > MAX)
+    {
+        printf("Invalid number of residents\n");
+        return 1;
+    }
+
+    read_names(names, n);
+
+    sort_names(names, n);
+
+    printf("\nSorted Names:\n");
+
+    for (int i = 0; i < n; i++)
+        printf("%s\n", names[i]);
+
+    printf("\nSorting Comparisons: %d\n", comparisons);
+
+    find_duplicates(names, n);
+
+    printf("\nEnter name to search: ");
+    fgets(key, LEN, stdin);
+
+    int i = 0;
+    while (key[i] != '\0')
+    {
+        if (key[i] == '\n')
+        {
+            key[i] = '\0';
+            break;
+        }
+        i++;
+    }
+
+    int pos = binary_search(names, n, key);
+
+    if (pos != -1)
+        printf("Name found at index %d\n", pos);
+    else
+        printf("Name not found\n");
+
+    printf("Search Comparisons: %d\n", comparisons);
+
+    return 0;
+}

@@ -1,0 +1,108 @@
+#include <stdio.h>
+
+#define MAX_CANDIDATES 12
+#define MAX_VOTES 500000
+
+int main()
+{
+    int votes[MAX_VOTES];
+    int count[MAX_CANDIDATES + 1] = {0};
+
+    int candidates, total;
+    int valid = 0, invalid = 0;
+
+    printf("Enter number of candidates: ");
+    scanf("%d", &candidates);
+
+    if (candidates < 1 || candidates > MAX_CANDIDATES)
+    {
+        printf("Invalid number of candidates\n");
+        return 1;
+    }
+
+    printf("Enter total number of votes: ");
+    scanf("%d", &total);
+
+    if (total < 0 || total > MAX_VOTES)
+    {
+        printf("Invalid number of votes\n");
+        return 1;
+    }
+
+    printf("Enter candidate numbers for each vote:\n");
+
+    /* Count Votes */
+    for (int i = 0; i < total; i++)
+    {
+        scanf("%d", &votes[i]);
+
+        if (votes[i] >= 1 && votes[i] <= candidates)
+        {
+            count[votes[i]]++;
+            valid++;
+        }
+        else
+        {
+            invalid++;
+        }
+    }
+
+    printf("\nValid Votes: %d\n", valid);
+    printf("Invalid Votes: %d\n", invalid);
+
+    /* Sort Candidates by Votes */
+    int id[MAX_CANDIDATES];
+    int temp;
+
+    for (int i = 0; i < candidates; i++)
+        id[i] = i + 1;
+
+    for (int i = 0; i < candidates - 1; i++)
+    {
+        for (int j = 0; j < candidates - i - 1; j++)
+        {
+            if (count[id[j]] < count[id[j + 1]])
+            {
+                temp = id[j];
+                id[j] = id[j + 1];
+                id[j + 1] = temp;
+            }
+        }
+    }
+
+    /* Display Results */
+    printf("\nElection Results:\n");
+
+    for (int i = 0; i < candidates; i++)
+    {
+        printf("Candidate %d = %d votes\n",
+               id[i], count[id[i]]);
+    }
+
+    /* Find Winner and Tie */
+    int maximum = count[id[0]];
+    int tie = 0;
+
+    for (int i = 1; i < candidates; i++)
+    {
+        if (count[id[i]] == maximum)
+            tie = 1;
+    }
+
+    if (maximum == 0)
+    {
+        printf("\nNo valid votes. No winner.\n");
+    }
+    else if (tie)
+    {
+        printf("\nElection Result: TIE\n");
+        printf("Winning vote count: %d\n", maximum);
+    }
+    else
+    {
+        printf("\nWinner: Candidate %d\n", id[0]);
+        printf("Votes: %d\n", maximum);
+    }
+
+    return 0;
+}

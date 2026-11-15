@@ -1,0 +1,102 @@
+#include <stdio.h>
+
+#define ROW 3
+#define COL 4
+
+/* Calculate Annual Total */
+void row_total(int rain[ROW][COL])
+{
+    printf("\nAnnual Rainfall:\n");
+
+    for (int i = 0; i < ROW; i++)
+    {
+        int total = 0;
+
+        for (int j = 0; j < COL; j++)
+            total += rain[i][j];
+
+        printf("District %d = %d mm\n", i + 1, total);
+    }
+}
+
+/* Calculate Monthly Average */
+void column_average(int rain[ROW][COL])
+{
+    printf("\nMonthly Average:\n");
+
+    for (int j = 0; j < COL; j++)
+    {
+        int total = 0;
+
+        for (int i = 0; i < ROW; i++)
+            total += rain[i][j];
+
+        printf("Month %d = %.2f mm\n",
+               j + 1, (float)total / ROW);
+    }
+}
+
+/* Find Maximum Rainfall */
+void maximum_rainfall(int rain[ROW][COL])
+{
+    int max = rain[0][0];
+    int r = 0, c = 0;
+
+    for (int i = 0; i < ROW; i++)
+    {
+        for (int j = 0; j < COL; j++)
+        {
+            if (rain[i][j] > max)
+            {
+                max = rain[i][j];
+                r = i;
+                c = j;
+            }
+        }
+    }
+
+    printf("\nMaximum Rainfall = %d mm\n", max);
+    printf("District = %d, Month = %d\n", r + 1, c + 1);
+}
+
+/* Find Deficient Districts */
+void deficient_districts(int rain[ROW][COL])
+{
+    float total = 0;
+
+    for (int i = 0; i < ROW; i++)
+        for (int j = 0; j < COL; j++)
+            total += rain[i][j];
+
+    float average = total / (ROW * COL);
+
+    printf("\nState Average = %.2f mm\n", average);
+    printf("Deficient Districts:\n");
+
+    for (int i = 0; i < ROW; i++)
+    {
+        int sum = 0;
+
+        for (int j = 0; j < COL; j++)
+            sum += rain[i][j];
+
+        if (sum < 0.6 * average * COL)
+            printf("District %d\n", i + 1);
+    }
+}
+
+int main()
+{
+    int rain[ROW][COL] = {
+        {100, 120, 80, 90},
+        {40, 50, 30, 45},
+        {150, 180, 160, 170}
+    };
+
+    row_total(rain);
+    column_average(rain);
+    maximum_rainfall(rain);
+    deficient_districts(rain);
+
+    return 0;
+}

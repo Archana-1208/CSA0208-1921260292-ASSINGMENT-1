@@ -1,0 +1,133 @@
+#include <stdio.h>
+
+int comparisons, swaps;
+
+/* Bubble Sort */
+void bubble_sort(int a[], int n)
+{
+    comparisons = 0;
+    swaps = 0;
+
+    for (int i = 0; i < n - 1; i++)
+    {
+        int flag = 0;
+
+        for (int j = 0; j < n - i - 1; j++)
+        {
+            comparisons++;
+
+            if (a[j] > a[j + 1])
+            {
+                int temp = a[j];
+                a[j] = a[j + 1];
+                a[j + 1] = temp;
+
+                swaps++;
+                flag = 1;
+            }
+        }
+
+        if (flag == 0)
+            break;
+    }
+}
+
+/* Selection Sort */
+void selection_sort(int a[], int n)
+{
+    comparisons = 0;
+    swaps = 0;
+
+    for (int i = 0; i < n - 1; i++)
+    {
+        int min = i;
+
+        for (int j = i + 1; j < n; j++)
+        {
+            comparisons++;
+
+            if (a[j] < a[min])
+                min = j;
+        }
+
+        if (min != i)
+        {
+            int temp = a[i];
+            a[i] = a[min];
+            a[min] = temp;
+
+            swaps++;
+        }
+    }
+}
+
+/* Insertion Sort */
+void insertion_sort(int a[], int n)
+{
+    comparisons = 0;
+    swaps = 0;
+
+    for (int i = 1; i < n; i++)
+    {
+        int key = a[i];
+        int j = i - 1;
+
+        while (j >= 0)
+        {
+            comparisons++;
+
+            if (a[j] > key)
+            {
+                a[j + 1] = a[j];
+                swaps++;
+                j--;
+            }
+            else
+                break;
+        }
+
+        a[j + 1] = key;
+    }
+}
+
+/* Display Array */
+void display(int a[], int n)
+{
+    for (int i = 0; i < n; i++)
+        printf("%d ", a[i]);
+
+    printf("\n");
+}
+
+int main()
+{
+    int a[] = {45, 12, 67, 23, 10, 89};
+    int b[6], c[6], d[6];
+
+    for (int i = 0; i < 6; i++)
+    {
+        b[i] = a[i];
+        c[i] = a[i];
+        d[i] = a[i];
+    }
+
+    bubble_sort(b, 6);
+    printf("Bubble Sort: ");
+    display(b, 6);
+    printf("Comparisons = %d, Swaps = %d\n\n",
+           comparisons, swaps);
+
+    selection_sort(c, 6);
+    printf("Selection Sort: ");
+    display(c, 6);
+    printf("Comparisons = %d, Swaps = %d\n\n",
+           comparisons, swaps);
+
+    insertion_sort(d, 6);
+    printf("Insertion Sort: ");
+    display(d, 6);
+    printf("Comparisons = %d, Shifts = %d\n",
+           comparisons, swaps);
+
+    return 0;
+}

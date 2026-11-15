@@ -1,0 +1,79 @@
+#include <stdio.h>
+
+int steps = 0;
+
+/* Linear Search */
+int linear_search(int a[], int n, int key)
+{
+    steps = 0;
+
+    for (int i = 0; i < n; i++)
+    {
+        steps++;
+
+        if (a[i] == key)
+            return i;
+    }
+
+    return -1;
+}
+
+/* Binary Search */
+int binary_search(const int a[], int n, int key)
+{
+    steps = 0;
+
+    int low = 0, high = n - 1;
+
+    while (low <= high)
+    {
+        int mid = low + (high - low) / 2;
+
+        steps++;
+
+        if (a[mid] == key)
+            return mid;
+
+        else if (a[mid] < key)
+            low = mid + 1;
+
+        else
+            high = mid - 1;
+    }
+
+    return -1;
+}
+
+int main()
+{
+    int accession[] = {
+        1021, 1048, 1103, 1190, 1222,
+        1305, 1377, 1402, 1460, 1533
+    };
+
+    int n = 10;
+
+    int keys[] = {1021, 1305, 1533, 1400};
+
+    printf("LINEAR SEARCH\n");
+
+    for (int i = 0; i < 4; i++)
+    {
+        int pos = linear_search(accession, n, keys[i]);
+
+        printf("Book %d -> index %d, comparisons = %d\n",
+               keys[i], pos, steps);
+    }
+
+    printf("\nBINARY SEARCH\n");
+
+    for (int i = 0; i < 4; i++)
+    {
+        int pos = binary_search(accession, n, keys[i]);
+
+        printf("Book %d -> index %d, comparisons = %d\n",
+               keys[i], pos, steps);
+    }
+
+    return 0;
+}
