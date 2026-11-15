@@ -1,0 +1,190 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+typedef struct
+{
+    int id;
+    char group[4];
+    int days_until_eligible;
+} Donor;
+
+typedef struct
+{
+    Donor *data;
+    int size;
+    int capacity;
+} DonorList;
+
+/* Add Donor */
+int add_donor(DonorList *list, int id,
+              const char *group, int days)
+{
+    if (list->size == list->capacity)
+    {
+        int new_capacity =
+            list->capacity == 0 ? 2 : list->capacity * 2;
+
+        Donor *p = realloc(list->data,
+                           new_capacity * sizeof(Donor));
+
+        if (p == NULL)
+            return 0;
+
+        list->data = p;
+        list->capacity = new_capacity;
+    }
+
+    Donor *d = &list->data[list->size];
+
+    d->id = id;
+
+    snprintf(d->group, sizeof(d->group), "%s", group);
+
+    d->days_until_eligible = days;
+
+    list->size++;
+
+    return 1;
+}
+
+/* Save Donors */
+void save_donors(DonorList *list)
+{
+    FILE *fp = fopen("report.dat", "wb");
+
+    if (fp == NULL)
+    {
+        perror("report.dat");
+        return;
+    }
+
+    fwrite(&list->size, sizeof(int), 1, fp);
+
+    fwrite(list->data, sizeof(Donor),
+           list->size, fp);
+
+    fclose(fp);
+}
+
+/* Load Donors */
+int load_donors(DonorList *list)
+{
+    FILE *fp = fopen("report.dat", "rb");
+
+    if (fp == NULL)
+    {
+        perror("report.dat");
+        return 0;
+    }
+
+    int n;
+
+    if (fread(&n, sizeof(int), 1, fp) != 1 || n < 0)
+    {
+        fclose(fp);
+        return 0;
+    }
+
+    for (int i = 0; i < n; i++)
+    {
+        Donor d;
+
+        if (fread(&d, sizeof(Donor), 1, fp) != 1)
+        {
+            fclose(fp);
+            return 0;
+        }
+
+        if (!add_donor(list, d.id, d.group,
+                       d.days_until_eligible))
+        {
+            fclose(fp);
+            return 0;
+        }
+    }
+
+    fclose(fp);
+
+    return 1;
+}
+
+/* Generate Weekly Eligibility Report */
+void generate_report(DonorList *list)
+{
+    printf("\nELIGIBLE DONORS - NEXT 7 DAYS\n");
+
+    int count = 0;
+
+    for (int i = 0; i < list->size; i++)
+    {
+        if (list->data[i].days_until_eligible <= 7 &&
+            list->data[i].days_until_eligible >= 0)
+        {
+            printf("ID: %d  Group: %s  Days: %d\n",
+                   list->data[i].id,
+                   list->data[i].group,
+                   list->data[i].days_until_eligible);
+
+            count++;
+        }
+    }
+
+    printf("\nTotal Eligible Donors: %d\n", count);
+}
+
+int main()
+{
+    DonorList list = {NULL, 0, 0};
+
+    /* Sample Donor Data */
+    const char *groups[] = {
+        "O+", "A+", "B+", "AB+", "O-"
+    };
+
+    for (int i = 0; i < 1000; i++)
+    {
+        if (!add_donor(&list, 7001 + i,
+                       groups[i % 5], i % 15))
+        {
+            printf("Memory allocation failed\n");
+            free(list.data);
+            return 1;
+        }
+    }
+
+    save_donors(&list);
+
+    free(list.data);
+    list.data = NULL;
+
+    DonorList report = {NULL, 0, 0};
+
+    clock_t start = clock();
+
+    if (!load_donors(&report))
+    {
+        printf("Loading failed\n");
+        free(report.data);
+        return 1;
+    }
+
+    generate_report(&report);
+
+    clock_t end = clock();
+
+    printf("\nTotal Donors: %d\n", report.size);
+
+    printf("Allocated Memory: %zu bytes\n",
+           (size_t)report.capacity * sizeof(Donor));
+
+    printf("Execution Time: %.6f seconds\n",
+           (double)(end - start) / CLOCKS_PER_SEC);
+
+    free(report.data);
+    report.data = NULL;
+
+    printf("\nMemory released successfully\n");
+
+    return 0;
+}

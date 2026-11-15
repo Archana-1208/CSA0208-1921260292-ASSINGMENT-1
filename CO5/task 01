@@ -1,0 +1,114 @@
+#include <stdio.h>
+#include <string.h>
+
+typedef struct
+{
+    int id;
+    char name[30];
+    char group[4];
+    int age;
+} Donor;
+
+typedef struct
+{
+    int count;
+    int youngest_id;
+} Result;
+
+/* Register Donor */
+void register_donor(Donor *d)
+{
+    printf("Enter Donor ID: ");
+    scanf("%d", &d->id);
+
+    printf("Enter Name: ");
+    scanf("%29s", d->name);
+
+    printf("Enter Blood Group: ");
+    scanf("%3s", d->group);
+
+    printf("Enter Age: ");
+    scanf("%d", &d->age);
+}
+
+/* Check Eligibility */
+int check_eligibility(const Donor *d)
+{
+    return d->age >= 18;
+}
+
+/* Find Eligible Donors using pointer parameters */
+void find_donors(const Donor d[], int n,
+                 const char *group,
+                 int *count, int *youngest_id)
+{
+    int youngest_age = 1000;
+
+    *count = 0;
+    *youngest_id = -1;
+
+    for (int i = 0; i < n; i++)
+    {
+        if (strcmp(d[i].group, group) == 0 &&
+            check_eligibility(&d[i]))
+        {
+            (*count)++;
+
+            if (d[i].age < youngest_age)
+            {
+                youngest_age = d[i].age;
+                *youngest_id = d[i].id;
+            }
+        }
+    }
+}
+
+/* Alternative: Return Structure */
+Result find_donors_result(const Donor d[], int n,
+                          const char *group)
+{
+    Result r = {0, -1};
+    int youngest_age = 1000;
+
+    for (int i = 0; i < n; i++)
+    {
+        if (strcmp(d[i].group, group) == 0 &&
+            check_eligibility(&d[i]))
+        {
+            r.count++;
+
+            if (d[i].age < youngest_age)
+            {
+                youngest_age = d[i].age;
+                r.youngest_id = d[i].id;
+            }
+        }
+    }
+
+    return r;
+}
+
+int main()
+{
+    Donor donors[3] = {
+        {101, "Arun", "O+", 25},
+        {102, "Bala", "O+", 30},
+        {103, "Kiran", "A+", 22}
+    };
+
+    int count, youngest;
+
+    find_donors(donors, 3, "O+", &count, &youngest);
+
+    printf("\nUsing Pointer Parameters:\n");
+    printf("Eligible Donors: %d\n", count);
+    printf("Youngest Donor ID: %d\n", youngest);
+
+    Result r = find_donors_result(donors, 3, "O+");
+
+    printf("\nUsing Structure:\n");
+    printf("Eligible Donors: %d\n", r.count);
+    printf("Youngest Donor ID: %d\n", r.youngest_id);
+
+    return 0;
+}

@@ -1,0 +1,53 @@
+#include <stdio.h>
+
+#define N 8
+
+/* Find Lowest Stock and Return Pointer */
+int *lowest_stock(int stock[], int n)
+{
+    int *min = &stock[0];
+
+    for (int i = 1; i < n; i++)
+    {
+        if (stock[i] < *min)
+            min = &stock[i];
+    }
+
+    return min;
+}
+
+int main(int argc, char *argv[])
+{
+    int stock[N] = {40, 25, 12, 30, 18, 50, 35, 20};
+
+    int *p = stock;
+
+    printf("Original First Element: %d\n", *p);
+    printf("p + 3 Address: %p\n", (void *)(p + 3));
+    printf("*(p + 3): %d\n", *(p + 3));
+    printf("p[3]: %d\n", p[3]);
+    printf("*p++: %d\n", *p++);
+
+    int *lowest = lowest_stock(stock, N);
+
+    printf("\nLowest Stock: %d\n", *lowest);
+
+    *lowest += 5;
+
+    printf("Updated Lowest Stock: %d\n", *lowest);
+
+    if (argc >= 2)
+    {
+        if (argc == 3 && strcmp(argv[1], "find") == 0)
+            printf("Search requested for blood group %s\n", argv[2]);
+
+        else
+            printf("Invalid arguments\n");
+    }
+    else
+    {
+        printf("Usage: bloodbank find O+\n");
+    }
+
+    return 0;
+}

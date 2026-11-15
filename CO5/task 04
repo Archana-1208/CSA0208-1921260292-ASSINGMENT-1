@@ -1,0 +1,83 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+typedef struct
+{
+    int id;
+    char name[30];
+    char group[4];
+} Donor;
+
+typedef struct
+{
+    Donor *data;
+    int size;
+    int capacity;
+} DonorList;
+
+/* Add Donor and Double Capacity */
+int add_donor(DonorList *list, int id,
+              const char *name, const char *group)
+{
+    if (list->size == list->capacity)
+    {
+        int new_capacity =
+            (list->capacity == 0) ? 2 : list->capacity * 2;
+
+        Donor *p = realloc(list->data,
+                           new_capacity * sizeof(Donor));
+
+        if (p == NULL)
+        {
+            printf("Memory allocation failed\n");
+            return 0;
+        }
+
+        list->data = p;
+        list->capacity = new_capacity;
+    }
+
+    Donor *d = &list->data[list->size];
+
+    d->id = id;
+
+    strncpy(d->name, name, 29);
+    d->name[29] = '\0';
+
+    strncpy(d->group, group, 3);
+    d->group[3] = '\0';
+
+    list->size++;
+
+    return 1;
+}
+
+int main()
+{
+    DonorList list = {NULL, 0, 0};
+
+    add_donor(&list, 101, "Arun", "O+");
+    add_donor(&list, 102, "Bala", "A+");
+    add_donor(&list, 103, "Kiran", "B+");
+    add_donor(&list, 104, "Ravi", "AB+");
+    add_donor(&list, 105, "John", "O-");
+
+    printf("Donor Records:\n");
+
+    for (int i = 0; i < list.size; i++)
+    {
+        printf("%d %s %s\n",
+               list.data[i].id,
+               list.data[i].name,
+               list.data[i].group);
+    }
+
+    printf("\nTotal Donors: %d\n", list.size);
+    printf("Capacity: %d\n", list.capacity);
+
+    free(list.data);
+    list.data = NULL;
+
+    return 0;
+}

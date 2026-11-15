@@ -1,0 +1,180 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
+
+typedef struct
+{
+    int id;
+    char name[30];
+    char group[4];
+    int age;
+} Donor;
+
+typedef struct
+{
+    int group_code;
+    int units;
+} Stock;
+
+/* Update Binary Stock Record */
+int update_units(FILE *fp, int index, int units)
+{
+    Stock s;
+
+    if (index < 0)
+        return 0;
+
+    if (fseek(fp, (long)index * sizeof(Stock), SEEK_SET) != 0)
+        return 0;
+
+    if (fread(&s, sizeof(Stock), 1, fp) != 1)
+        return 0;
+
+    s.units = units;
+
+    if (fseek(fp, -(long)sizeof(Stock), SEEK_CUR) != 0)
+        return 0;
+
+    if (fwrite(&s, sizeof(Stock), 1, fp) != 1)
+        return 0;
+
+    return 1;
+}
+
+int main()
+{
+    Donor d[10] = {
+        {101, "Arun", "O+", 25},
+        {102, "Bala", "A+", 30},
+        {103, "Kiran", "B+", 22},
+        {104, "Ravi", "AB+", 28},
+        {105, "John", "O-", 35},
+        {106, "Ram", "A-", 24},
+        {107, "Sam", "B-", 26},
+        {108, "Raj", "AB-", 29},
+        {109, "Hari", "O+", 31},
+        {110, "Mani", "A+", 27}
+    };
+
+    Donor temp;
+
+    /* TEXT FILE */
+    FILE *fp = fopen("donors.txt", "w");
+
+    if (fp == NULL)
+    {
+        perror("donors.txt");
+        return 1;
+    }
+
+    for (int i = 0; i < 10; i++)
+    {
+        fprintf(fp, "%d %s %s %d\n",
+                d[i].id, d[i].name,
+                d[i].group, d[i].age);
+    }
+
+    fclose(fp);
+
+    fp = fopen("donors.txt", "r");
+
+    if (fp == NULL)
+    {
+        perror("donors.txt");
+        return 1;
+    }
+
+    printf("TEXT FILE RECORDS:\n");
+
+    for (int i = 0; i < 10; i++)
+    {
+        if (fscanf(fp, "%d %29s %3s %d",
+                   &temp.id, temp.name,
+                   temp.group, &temp.age) != 4)
+        {
+            printf("Read error\n");
+            fclose(fp);
+            return 1;
+        }
+
+        printf("%d %s %s %d\n",
+               temp.id, temp.name,
+               temp.group, temp.age);
+    }
+
+    fclose(fp);
+
+    /* BINARY FILE */
+    fp = fopen("donors.dat", "wb");
+
+    if (fp == NULL)
+    {
+        perror("donors.dat");
+        return 1;
+    }
+
+    fwrite(d, sizeof(Donor), 10, fp);
+    fclose(fp);
+
+    fp = fopen("donors.dat", "rb");
+
+    if (fp == NULL)
+    {
+        perror("donors.dat");
+        return 1;
+    }
+
+    printf("\nBINARY FILE RECORDS:\n");
+
+    for (int i = 0; i < 10; i++)
+    {
+        if (fread(&temp, sizeof(Donor), 1, fp) != 1)
+        {
+            printf("Read error\n");
+            fclose(fp);
+            return 1;
+        }
+
+        printf("%d %s %s %d\n",
+               temp.id, temp.name,
+               temp.group, temp.age);
+    }
+
+    fclose(fp);
+
+    /* STOCK UPDATE */
+    Stock stock[5] = {
+        {1, 40}, {2, 25}, {3, 12},
+        {4, 8}, {5, 30}
+    };
+
+    fp = fopen("stock.dat", "wb");
+
+    if (fp == NULL)
+    {
+        perror("stock.dat");
+        return 1;
+    }
+
+    fwrite(stock, sizeof(Stock), 5, fp);
+    fclose(fp);
+
+    fp = fopen("stock.dat", "rb+");
+
+    if (fp == NULL)
+    {
+        perror("stock.dat");
+        return 1;
+    }
+
+    printf("\nUpdate record 3: %s\n",
+           update_units(fp, 3, 20) ? "done" : "failed");
+
+    printf("Update record 9: %s\n",
+           update_units(fp, 9, 20) ? "done" : "failed");
+
+    fclose(fp);
+
+    return 0;
+}

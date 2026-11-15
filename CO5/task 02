@@ -1,0 +1,57 @@
+#include <stdio.h>
+
+/* Calculate Digital Root Recursively */
+int digital_root(int n)
+{
+    if (n < 10)
+        return n;
+
+    int sum = 0;
+
+    while (n > 0)
+    {
+        sum += n % 10;
+        n /= 10;
+    }
+
+    return digital_root(sum);
+}
+
+/* Calculate Power using Linear Recursion */
+long long power_linear(int base, int n)
+{
+    if (n == 0)
+        return 1;
+
+    return base * power_linear(base, n - 1);
+}
+
+/* Calculate Power using Halving Recursion */
+long long power_fast(int base, int n)
+{
+    if (n == 0)
+        return 1;
+
+    long long half = power_fast(base, n / 2);
+
+    if (n % 2 == 0)
+        return half * half;
+
+    return base * half * half;
+}
+
+int main()
+{
+    int n = 5832;
+
+    printf("Digital Root of %d = %d\n",
+           n, digital_root(n));
+
+    printf("Linear Power = %lld\n",
+           power_linear(2, 10));
+
+    printf("Fast Power = %lld\n",
+           power_fast(2, 10));
+
+    return 0;
+}

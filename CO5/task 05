@@ -1,0 +1,140 @@
+#include <stdio.h>
+#include <string.h>
+
+typedef struct
+{
+    int id;
+    char name[30];
+    char group[4];
+    int age;
+} Donor;
+
+typedef struct
+{
+    int group_code;
+    int units;
+} Stock;
+
+/* Save Donors in Text File */
+void save_donors()
+{
+    FILE *fp = fopen("donors.txt", "w");
+
+    if (fp == NULL)
+    {
+        perror("donors.txt");
+        return;
+    }
+
+    Donor d[3] = {
+        {101, "Arun", "O+", 25},
+        {102, "Bala", "A+", 30},
+        {103, "Kiran", "B+", 22}
+    };
+
+    for (int i = 0; i < 3; i++)
+    {
+        fprintf(fp, "%d %s %s %d\n",
+                d[i].id, d[i].name,
+                d[i].group, d[i].age);
+    }
+
+    fclose(fp);
+    printf("Donors saved successfully\n");
+}
+
+/* Read Donors from Text File */
+void load_donors()
+{
+    FILE *fp = fopen("donors.txt", "r");
+
+    if (fp == NULL)
+    {
+        perror("donors.txt");
+        return;
+    }
+
+    Donor d;
+
+    printf("\nDonor Records:\n");
+
+    while (fscanf(fp, "%d %29s %3s %d",
+                  &d.id, d.name, d.group, &d.age) == 4)
+    {
+        printf("%d %s %s %d\n",
+               d.id, d.name, d.group, d.age);
+    }
+
+    fclose(fp);
+}
+
+/* Save Stock in Binary File */
+void save_stock()
+{
+    Stock s[4] = {
+        {1, 40}, {2, 25}, {3, 12}, {4, 30}
+    };
+
+    FILE *fp = fopen("stock.dat", "wb");
+
+    if (fp == NULL)
+    {
+        perror("stock.dat");
+        return;
+    }
+
+    fwrite(s, sizeof(Stock), 4, fp);
+
+    fclose(fp);
+
+    printf("\nStock saved successfully\n");
+}
+
+/* Update Stock using fseek, fread and fwrite */
+int update_units(FILE *fp, int index, int units)
+{
+    Stock s;
+
+    if (index < 0)
+        return 0;
+
+    if (fseek(fp, (long)index * sizeof(Stock), SEEK_SET) != 0)
+        return 0;
+
+    if (fread(&s, sizeof(Stock), 1, fp) != 1)
+        return 0;
+
+    s.units = units;
+
+    if (fseek(fp, -(long)sizeof(Stock), SEEK_CUR) != 0)
+        return 0;
+
+    if (fwrite(&s, sizeof(Stock), 1, fp) != 1)
+        return 0;
+
+    return 1;
+}
+
+int main()
+{
+    save_donors();
+    load_donors();
+    save_stock();
+
+    FILE *fp = fopen("stock.dat", "rb+");
+
+    if (fp == NULL)
+    {
+        perror("stock.dat");
+        return 1;
+    }
+
+    if (update_units(fp, 2, 20))
+        printf("\nStock updated successfully\n");
+    else
+        printf("\nStock update failed\n");
+
+    fclose(fp);
+
+    return 0;
+}
